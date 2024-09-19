@@ -3,21 +3,25 @@
 
 # geoidep
 
-<img src="man/figures/geoidep.svg" align="right" hspace="10" vspace="0" width="20%">
+<img src="man/figures/geoidep.svg" align="right" hspace="10" vspace="0" width="22%">
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/ambarja/geoidep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ambarja/geoidep/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/ambarja/geoidep/graph/badge.svg)](https://app.codecov.io/gh/ambarja/geoidep)
 <!-- badges: end -->
 
-The goal of geoidep is to offers R users an easy and accessible way to
-obtain official cartographic data on various topics, such as society,
-transport, environment, agriculture, urban and rural cadastral, climate,
-among others.
+The goal of **geoidep**📦 is to offers R users an easy and accessible
+way to obtain official cartographic data on various topics, such as
+**society** 🏛️, **transport**🚗, **environment**🌱, **agriculture**🌾,
+**climate**⛅️,among others.
 
-It also includes information provided by regional government entities
-and technical-scientific institutions,managed by the Spatial Data
-Infrastructure of Peru.
+This includes information provided by regional government entities and
+technical-scientific institutions, managed by the **Spatial Data
+Infrastructure of Peru**.
 
 ## Installation
 
@@ -25,16 +29,66 @@ You can install the development version of geoidep like so:
 
 ``` r
 install.packages('pak')
-pak::pkg_install("ambarja/geoidep")
+pak::pkg_install('ambarja/geoidep')
 ```
 
-## Example
+or also the official version available on CRAN:
+
+``` r
+install.packages('geoidep')
+```
+
+## Example 01: Introduction
+
+``` r
+library(geoidep)
+#> 
+#> ── Welcome to geoidep ──────────────────────────────────────────────────────────
+#> ℹ geoidep is a wrapper that allows you to download cartographic data for Peru from R.
+#> Currently, `geoidep` supports the following providers:
+#> ✔ Geobosque
+#> ✔ INEI
+#> ✔ Midagri
+#> ✔ Sernanp
+#> ℹ For more information, please use the `get_data_sources()` function.
+```
+
+In this example, we can identify the list of providers available in
+geoidep and the layers they present.
+
+``` r
+get_data_sources() |> 
+  head()
+#> # A tibble: 6 × 7
+#>   provider category    layer           layer_can_be_actived admin_en year  link 
+#>   <chr>    <chr>       <chr>           <lgl>                <chr>    <chr> <chr>
+#> 1 INEI     General     departamento    TRUE                 Nationa… 2019  http…
+#> 2 INEI     General     provincia       TRUE                 Nationa… 2019  http…
+#> 3 INEI     General     distritos       TRUE                 Nationa… 2019  http…
+#> 4 Midagri  Agriculture vegetation_cov… TRUE                 Ministr… 2018  http…
+#> 5 Midagri  Agriculture agriculture_se… TRUE                 Ministr… 2024  http…
+#> 6 Midagri  Agriculture oil_palm_areas  TRUE                 Ministr… 2016… http…
+```
+
+In summary the suppliers and the number of available layers
+
+``` r
+get_providers() 
+#> # A tibble: 4 × 2
+#>   provider  layer_count
+#>   <fct>           <int>
+#> 1 Geobosque           5
+#> 2 INEI                3
+#> 3 Midagri             4
+#> 4 Sernanp            61
+```
+
+## Example 02: Download official INEI administrative boundaries
 
 This is a simple example of how to download Peru’s official
 administrative boundaries:
 
 ``` r
-library(geoidep)
 dep <- get_departaments(show_progress = FALSE)
 ```
 

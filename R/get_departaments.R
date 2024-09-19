@@ -1,4 +1,4 @@
-#' Download the Departament limits of INEI
+#' Download INEI departmental boundaries
 #'
 #' @description
 #' This function allows you to download the latest version of the \bold{geometry} and \bold{ubigeos}
@@ -8,7 +8,9 @@
 #' @param dsn Character. Output filename. If missing, a temporary file is created.
 #' @param show_progress Logical. Suppress bar progress.
 #' @param quiet Logical. Suppress info message.
+#'
 #' @returns A sf or tibble object.
+#'
 #' @examples
 #' \donttest{
 #' library(geoidep)
@@ -18,29 +20,29 @@
 #' @export
 
 get_departaments <- \(dsn = NULL, show_progress = TRUE, quiet = TRUE){
+  primary_link <- get_inei_link("departamento")
 
-  primary_link <- get_inei_link("departments")
-
-  if(is.null(dsn)){
+  if (is.null(dsn)) {
     dsn <- tempfile(fileext = ".rar")
   }
 
-  if(isTRUE(show_progress)) {
-      rar.download <- httr::GET(
-        primary_link,
-        config = httr::config(ssl_verifypeer = FALSE),
-        httr::write_disk(dsn,overwrite = TRUE),
-        httr::progress()
-        )
-  }else{
-      rar.download <- httr::GET(
-        primary_link,
-        config = httr::config(ssl_verifypeer = FALSE),
-        httr::write_disk(dsn,overwrite = TRUE))
+  if (isTRUE(show_progress)) {
+    rar.download <- httr::GET(
+      primary_link,
+      config = httr::config(ssl_verifypeer = FALSE),
+      httr::write_disk(dsn, overwrite = TRUE),
+      httr::progress()
+    )
+  } else {
+    rar.download <- httr::GET(
+      primary_link,
+      config = httr::config(ssl_verifypeer = FALSE),
+      httr::write_disk(dsn, overwrite = TRUE)
+    )
   }
 
   # Check if the download was successful
-  if(httr::http_error(rar.download)) {
+  if (httr::http_error(rar.download)) {
     stop("Error downloading the file. Check the URL or connection")
   }
 
@@ -49,16 +51,17 @@ get_departaments <- \(dsn = NULL, show_progress = TRUE, quiet = TRUE){
 
   archive::archive_extract(
     archive = dsn,
-    dir = extract_dir)
+    dir = extract_dir
+  )
 
   gpkg_file <- list.files(extract_dir, pattern = "\\.gpkg$", full.names = TRUE)
 
   # Validate if .gpkg file exists
-  if(length(gpkg_file) == 0) {
+  if (length(gpkg_file) == 0) {
     stop("No .gpkg file was found after extraction")
   }
 
-  sf_data <- sf::st_read(gpkg_file,quiet = quiet)
+  sf_data <- sf::st_read(gpkg_file, quiet = quiet)
 
   return(sf_data)
 }

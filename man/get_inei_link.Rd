@@ -2,17 +2,17 @@
 % Please edit documentation in R/utils.R
 \name{get_inei_link}
 \alias{get_inei_link}
-\title{Retrieve INEI Links of the Basic Cartographic Information}
+\title{Gets the links to the INEI's basic cartographic information.}
 \usage{
 get_inei_link(type = NULL)
 }
 \arguments{
-\item{type}{String. One of 'districts', 'provinces', or 'departments'. Defaults to NULL.}
+\item{type}{A string. Select only one of the following layers; ‘districts’, ‘provinces’, or ‘departments’. Defaults to NULL.}
 }
 \value{
 A string containing the URL of the requested file.
 }
 \description{
-Retrieve INEI Links of the Basic Cartographic Information
+Gets the links to the INEI's basic cartographic information.
 }
 \keyword{internal}

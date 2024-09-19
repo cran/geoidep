@@ -1,4 +1,4 @@
-#' Download the districts limits of INEI
+#' Download INEI district boundaries
 #'
 #' @description
 #' This function allows you to download the latest version of the \bold{geometry} and \bold{ubigeos}
@@ -8,7 +8,9 @@
 #' @param dsn Character. Output filename with the \bold{*.gpkg} format. If missing, a temporary file is created.
 #' @param show_progress Logical. Suppress bar progress.
 #' @param quiet Logical. Suppress info message.
+#'
 #' @returns A sf object.
+#'
 #' @examples
 #' \donttest{
 #' library(geoidep)
@@ -18,8 +20,7 @@
 #' @export
 
 get_districts <- \(dsn = NULL, show_progress = TRUE, quiet = TRUE) {
-
-  primary_link <- get_inei_link("districts")
+  primary_link <- get_inei_link("distrito")
 
   if (is.null(dsn)) {
     dsn <- tempfile(fileext = ".rar")
@@ -68,6 +69,3 @@ get_districts <- \(dsn = NULL, show_progress = TRUE, quiet = TRUE) {
 
   return(sf_data)
 }
-
-
-
