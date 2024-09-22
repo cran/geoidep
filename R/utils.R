@@ -114,7 +114,7 @@ get_midagri_link <- \(type = NULL){
     "experimental_stations" = "https://pgc-snia.inia.gob.pe:8443/jspui/mapa/data/estaciones_experimentales.js"
   )
   if (!type %in% names(midagri_link) || is.null(type)) {
-    stop("Invalid type. Please choose from 'vegetation cover', 'agriculture sector', 'oil palm' or 'experimental stations'")
+    stop("Invalid type. Please choose from 'vegetation_cover', 'agriculture_sector', 'oil_palm' or 'experimental_stations'")
   }
   return(midagri_link[[type]])
 }
@@ -149,9 +149,43 @@ get_early_warning_link <- \(type = NULL){
   return(geobosque_early_warning_link[[type]])
 }
 
+#' Serfor API to get forest fire
+#' @param type A string. Only one layer; `forest_fire`
+#' @return A string containing the URL of the requested file.
+#' @keywords internal
+
+get_forest_fire_link <- \(type = NULL){
+  serfor_forest_fire_link <- c("forest_fire" = "https://geo.serfor.gob.pe/geoservicios/rest/services/Servicios_OGC/Unidad_Monitoreo_Satelital/MapServer/1/query")
+  if (!type %in% names(serfor_forest_fire_link) || is.null(type)) {
+    stop("Invalid type. Please choose 'forest_fire'")
+  }
+  return(serfor_forest_fire_link[[type]])
+}
+
+#' Serfor API to get heat spot
+#' @param type A string. Only one layer; `heat_spot`
+#' @return A string containing the URL of the requested file.
+#' @keywords internal
+get_heat_spot_link <- \(type = NULL){
+  serfor_heat_spot_link <- c("heat_spot" = "https://geo.serfor.gob.pe/geoservicios/rest/services/Servicios_OGC/Unidad_Monitoreo_Satelital/MapServer/0/query")
+  if (!type %in% names(serfor_heat_spot_link) || is.null(type)) {
+    stop("Invalid type. Please choose 'heat_spot'")
+  }
+  return(serfor_heat_spot_link[[type]])
+}
 
 #' Global variables for get_early_warning
 #' This code declares global variables used in the `get_early_warning` function to avoid R CMD check warnings.
 #' @name global-variables
 #' @keywords internal
-utils::globalVariables(c("X", "Y", "coords", "all_coords", "everything", "lng", "lat","provider","available_providers","loreto_prov"))
+utils::globalVariables(c("X", "Y", "coords", "all_coords", "everything", "lng", "lat","provider","available_providers","loreto_prov",".","FECREG","FECHA","created_date","last_edited_date"))
+
+#' Time format units
+#' This code transforms the time from milliseconds to a calendar date format.
+#' @keywords internal
+as_data_time <- \(x){
+  timestamp_ms <- x
+  timestamp_s <- timestamp_ms / 1000
+  fecha <- as.POSIXct(timestamp_s, origin = "1970-01-01", tz = "UTC")
+  return(fecha)
+}
