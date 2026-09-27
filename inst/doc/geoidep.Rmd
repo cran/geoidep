@@ -4,7 +4,7 @@ author: "Antony Barja"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{This package aims to provide R users with a new way of accessing official Peruvian cartographic data on various topics that are managed by the country's Spatial Data Infrastructure.}
+  %\VignetteIndexEntry{Introduction to geoidep}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,8 +25,6 @@ This package aims to provide R users with a new way of accessing official Peruvi
 By offering a new approach to accessing this official data, both from technical-scientific entities and from regional and local governments, it facilitates the automation of processes, thereby optimizing the analysis and use of geospatial information across various fields.
 
 **However, this project is still under construction, for more information you can visit the GitHub official repository <https://github.com/ambarja/geoidep>.**
-
-<img src='../man/figures/testing.svg' width='100%'/>
 
 If you want to support this project, you can support me with a coffee for my programming moments.
 
@@ -50,47 +48,52 @@ pak::pkg_install('ambarja/geoidep')
 library(geoidep)
 ```
 
-## 3. Basic usage 
+```{r include=FALSE}
+providers <- get_data_sources()
+layers_available <- get_providers()
+
+loreto_prov <- get_provinces(show_progress = FALSE) |>
+    subset(nombdep == "LORETO")
+  
+loreto_prov[["ubigeo"]] <- paste0(loreto_prov[["ccdd"]], loreto_prov[["ccpp"]])
+
+```
+
+
+
+## 3. Basic usage
 
 ```{r}
-providers <- get_data_sources()
 providers
 ```
 
 ```{r}
-layers_available <- get_providers()
 layers_available
 ```
 
 ## 4. Download Official Administrative Boundaries by INEI
 ```{r}
-# Region boundaries download 
-loreto_prov <- get_provinces(show_progress = FALSE) |> 
-  subset(NOMBDEP == 'LORETO')
+# Region boundaries download (done once in the setup chunk above)
+head(loreto_prov, 3)
 ```
 
-```{r out.width='100%', out.height=250}
-library(leaflet)
+```{r, out.width='100%', out.height=250}
+library(mapgl)
 library(sf)
-loreto_prov |> 
-  leaflet() |> 
-  addTiles() |> 
-  addPolygons()
-```
-
-
-```{r}
-# Defined Ubigeo 
-loreto_prov[["ubigeo"]] <- paste0(loreto_prov[["CCDD"]],loreto_prov[["CCPP"]])
-```
-
-
-```{r}
-# The first five rows
-head(loreto_prov)
+maplibre_view(data = loreto_prov)
 ```
 
 ## 5. Working with Geobosque data
+
+```{r,include=FALSE}
+probe <- get_forest_loss_data(
+  layer = "stock_bosque_perdida_provincia",
+  ubigeo = loreto_prov[["ubigeo"]][1],
+  show_progress = FALSE
+  )
+
+```
+
 
 ```{r}
 my_fun <- function(x){
@@ -111,23 +114,35 @@ head(historico_df)
 
 ## 6. Simple visualization with ggplot
 
-```{r ,fig.align='center'}
+```{r , fig.align='center'}
 library(ggplot2)
 library(dplyr)
-historico_df |> 
-  inner_join(y = loreto_prov,by = "ubigeo") |> 
-  ggplot(aes(x = anio,y = perdida)) + 
-  geom_point(size = 1) + 
-  geom_line() + 
-  facet_wrap(NOMBPROV~.,ncol = 3) + 
-  theme_minimal(base_size = 5) + 
-  labs(
-    title = "Pérdida de bosque histórico del 2001-2023 \npara las provincias de Loreto",
-    caption = "Fuente: Geobosque",
-    x = "",
-    y = "") 
+
+historico_prov <- historico_df |>
+  inner_join(y = loreto_prov, by = "ubigeo")
+
+promedio_loreto <- historico_prov |>
+  group_by(anio) |>
+  summarise(perdida = mean(perdida), .groups = "drop")
 ```
 
 
-
-
+```{r , fig.align='center', fig.height=7, fig.width=12}
+ggplot(historico_prov, aes(x = anio, y = perdida)) +
+  geom_line(aes(group = nombprov, color = "Provincia"), linewidth = 0.6) +
+  geom_line(
+    data = promedio_loreto,
+    aes(color = "Promedio Loreto"),
+    linewidth = 0.6,
+    linetype = "dashed",
+    ) +
+  scale_color_manual(name = NULL, values = c("Provincia" = "red", "Promedio Loreto" = "black")) +
+  facet_wrap(nombprov ~ .) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Pérdida de bosque 2001-2025: provincias de Loreto vs. promedio departamental",
+    caption = "Fuente: Geobosque",
+    x = "",
+    y = "")
+```

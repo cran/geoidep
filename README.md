@@ -1,29 +1,39 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# geoidep
+# geoidep: Download Geographic Data Managed by Peru’s Spatial Data Infrastructure
 
-<img src="man/figures/geoidep.svg" align="right" hspace="10" vspace="0" width="22%">
+<img align="right" src="https://raw.githubusercontent.com/ambarja/geoidep/refs/heads/main/man/figures/geoidep_logo_b.png" alt="logo" width="140">
+<img align="right" src="https://raw.githubusercontent.com/ambarja/geoidep/refs/heads/main/man/figures/geoidep_logo_o.png" alt="logo" width="140">
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/ambarja/geoidep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ambarja/geoidep/actions/workflows/R-CMD-check.yaml)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Codecov test
 coverage](https://codecov.io/gh/ambarja/geoidep/graph/badge.svg)](https://app.codecov.io/gh/ambarja/geoidep)
+[![CircleCI build
+status](https://circleci.com/gh/ambarja/geoidep.svg?style=svg)](https://app.circleci.com/pipelines/github/ambarja/geoidep)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
+<p align="justify">
 
-The goal of **geoidep**📦 is to offers R users an easy and accessible
+The goal of <b>geoidep</b>📦 is to offers R users an easy and accessible
 way to obtain official cartographic data on various topics, such as
-**society** 🏛️, **transport**🚗, **environment**🌱, **agriculture**🌾,
-**climate**⛅️,among others.
+<b>society</b>🏛️,<b> transport</b>🚗, <b>environment</b>🌱,
+<b>agriculture</b>🌾, <b>climate</b>⛅️,among others.This includes
+information provided by regional government entities and
+technical-scientific institutions, managed by the <b>Spatial Data
+Infrastructure of Peru</b>.
+</p>
 
-This includes information provided by regional government entities and
-technical-scientific institutions, managed by the **Spatial Data
-Infrastructure of Peru**.
+*⚠️ The package accesses these datasets dynamically from official public
+servers, without redistributing data locally.*
 
-## Installation
+The package is currently available in **R** and Python (coming soon).
+<hr>
+
+## Installation R
 
 You can install the development version of geoidep like so:
 
@@ -42,15 +52,18 @@ install.packages('geoidep')
 
 ``` r
 library(geoidep)
-#> 
-#> ── Welcome to geoidep ──────────────────────────────────────────────────────────
-#> ℹ geoidep is a wrapper that allows you to download cartographic data for Peru from R.
-#> Currently, `geoidep` supports the following providers:
-#> ✔ Geobosque
-#> ✔ INEI
-#> ✔ Midagri
-#> ✔ Sernanp
-#> ℹ For more information, please use the `get_data_sources()` function.
+```
+
+``` r
+── Welcome to geoidep ─────────────────────────────────────────────────────────────────
+ℹ geoidep is a wrapper that enables you to download cartographic data for Peru directly from R.
+ℹ Currently, `geoidep` supports data from the following providers:
+• Geobosque
+• INAIGEM
+• INEI
+• Midagri
+• and more!
+ℹ For more information, please use the `get_data_sources()` function.
 ```
 
 In this example, we can identify the list of providers available in
@@ -60,27 +73,31 @@ geoidep and the layers they present.
 get_data_sources() |> 
   head()
 #> # A tibble: 6 × 7
-#>   provider category    layer           layer_can_be_actived admin_en year  link 
-#>   <chr>    <chr>       <chr>           <lgl>                <chr>    <chr> <chr>
-#> 1 INEI     General     departamento    TRUE                 Nationa… 2019  http…
-#> 2 INEI     General     provincia       TRUE                 Nationa… 2019  http…
-#> 3 INEI     General     distritos       TRUE                 Nationa… 2019  http…
-#> 4 Midagri  Agriculture vegetation_cov… TRUE                 Ministr… 2018  http…
-#> 5 Midagri  Agriculture agriculture_se… TRUE                 Ministr… 2024  http…
-#> 6 Midagri  Agriculture oil_palm_areas  TRUE                 Ministr… 2016… http…
+#>   provider  category layer    layer_can_be_actived admin_en year  link_geoportal
+#>   <chr>     <chr>    <chr>    <lgl>                <chr>    <chr> <chr>         
+#> 1 INEI      General  departa… TRUE                 Nationa… 2019  https://ide.i…
+#> 2 INEI      General  provinc… TRUE                 Nationa… 2019  https://ide.i…
+#> 3 INEI      General  distrit… TRUE                 Nationa… 2019  https://ide.i…
+#> 4 Geobosque Forest   stock_b… FALSE                Ministr… 2001… https://geobo…
+#> 5 Geobosque Forest   stock_b… TRUE                 Ministr… 2001… https://geobo…
+#> 6 Geobosque Forest   stock_b… TRUE                 Ministr… 2001… https://geobo…
 ```
 
 In summary the suppliers and the number of available layers
 
 ``` r
 get_providers() 
-#> # A tibble: 4 × 2
-#>   provider  layer_count
-#>   <fct>           <int>
-#> 1 Geobosque           5
-#> 2 INEI                3
-#> 3 Midagri             4
-#> 4 Sernanp            61
+#> # A tibble: 8 × 2
+#>   provider         layer_count
+#>   <fct>                  <int>
+#> 1 Geobosque                  5
+#> 2 INAIGEM                    5
+#> 3 INEI                       7
+#> 4 MapBiomas Alerta           1
+#> 5 MTC                       26
+#> 6 Senamhi                    1
+#> 7 Serfor                     1
+#> 8 Sernanp                   31
 ```
 
 ## Example 02: Download official INEI administrative boundaries
@@ -96,23 +113,16 @@ The first 10 rows of the original data are displayed here:
 
 ``` r
 head(dep)
-#> Simple feature collection with 6 features and 6 fields
+#> Simple feature collection with 6 features and 3 fields
 #> Geometry type: MULTIPOLYGON
 #> Dimension:     XY
 #> Bounding box:  xmin: -79.45857 ymin: -17.28501 xmax: -70.80408 ymax: -2.986125
 #> Geodetic CRS:  WGS 84
-#>   id OBJECTID CCDD   NOMBDEP SHAPE_Length SHAPE_Area
-#> 1  1        1   01  AMAZONAS    13.059047   3.199147
-#> 2  2        2   02    ANCASH    11.788249   2.954697
-#> 3  3        3   03  APURIMAC     7.730154   1.765933
-#> 4  4        4   04  AREQUIPA    17.459435   5.330125
-#> 5  5        5   05  AYACUCHO    17.127166   3.643705
-#> 6  6        6   06 CAJAMARCA    12.540288   2.688386
-#>                             geom
-#> 1 MULTIPOLYGON (((-77.81399 -...
-#> 2 MULTIPOLYGON (((-77.64697 -...
-#> 3 MULTIPOLYGON (((-73.74655 -...
-#> 4 MULTIPOLYGON (((-71.98109 -...
-#> 5 MULTIPOLYGON (((-74.34843 -...
-#> 6 MULTIPOLYGON (((-78.70034 -...
+#>   ccdd   nombdep                     fuente                           geom
+#> 1   01  AMAZONAS V Censo Nacional Economico MULTIPOLYGON (((-77.81399 -...
+#> 2   02    ANCASH V Censo Nacional Economico MULTIPOLYGON (((-77.64697 -...
+#> 3   03  APURIMAC V Censo Nacional Economico MULTIPOLYGON (((-73.74655 -...
+#> 4   04  AREQUIPA V Censo Nacional Economico MULTIPOLYGON (((-71.98109 -...
+#> 5   05  AYACUCHO V Censo Nacional Economico MULTIPOLYGON (((-74.34843 -...
+#> 6   06 CAJAMARCA V Censo Nacional Economico MULTIPOLYGON (((-78.70034 -...
 ```
