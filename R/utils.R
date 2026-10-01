@@ -1,10 +1,27 @@
 #' Reading a csv containing geoidep resources
+#'
+#' By default the catalogue bundled with the package is used
+#' (`system.file("sources-idep", "sources_geoidep.csv", package = "geoidep")`),
+#' so the catalogue always matches the installed code and works offline
+#' (CRAN-safe). Pass `url` (or set `options(geoidep = ...)`) to read a
+#' remote or custom catalogue instead.
 #' @importFrom utils read.csv
 #' @keywords internal
 #' @noRd
 get_data <- \(url = NULL, timeout = 60){
-  if(is.null(url)){
-    url <- getOption(x = "geoidep", default = .internal_urls$geoidep)
+  if (is.null(url)) {
+    url <- getOption(x = "geoidep", default = "")
+    if (!is.character(url) || length(url) != 1L || !nzchar(url)) {
+      bundled <- system.file("sources-idep", "sources_geoidep.csv",
+                             package = "geoidep")
+      if (nzchar(bundled)) {
+        url <- bundled
+      } else {
+        # Development fallback (package not installed, e.g. load_all):
+        # use the last published catalogue.
+        url <- .internal_urls$geoidep
+      }
+    }
   }
   # Bound the connection wait explicitly (CRAN: never hang on downloads).
   # Restored on exit so no global state leaks.
@@ -12,7 +29,11 @@ get_data <- \(url = NULL, timeout = 60){
   options(timeout = timeout)
   on.exit(options(timeout = old_timeout), add = TRUE)
   tryCatch({
-    data <- read.csv(url) |> tidyr::as_tibble()
+    # The catalogue has historically used ";" but some published copies use
+    # ","; detect the separator from the header so both keep working.
+    header <- suppressWarnings(readLines(url, n = 1L))
+    sep <- if (length(header) == 1L && grepl(";", header, fixed = TRUE)) ";" else ","
+    data <- suppressWarnings(utils::read.csv(url, sep = sep)) |> tidyr::as_tibble()
     return(data)
   }, error = function(e) {
     cli::cli_abort(c(
@@ -30,13 +51,14 @@ get_data <- \(url = NULL, timeout = 60){
 #' tested in `tests/testthat/test-utils.R`.
 #'
 #' @param provider One of "inei", "sernanp", "midagri", "geobosque", "mtc",
-#'   "inaigem", "sigrid", "mapbiomas".
+#'   "inaigem", "sigrid", "mapbiomas", "senamhi", "igp", "ceplan", "ana", "oefa".
 #' @param layer Layer key inside `.internal_urls[[provider]]`.
 #' @keywords internal
 #' @noRd
 .get_layer_url <- \(provider, layer = NULL) {
   valid_providers <- c("inei", "sernanp", "midagri", "geobosque", "mtc",
-                       "inaigem", "sigrid", "mapbiomas", "senamhi")
+                       "inaigem", "sigrid", "mapbiomas", "senamhi", "igp",
+                       "ceplan", "ana", "oefa")
 
   provider <- match.arg(provider, valid_providers)
 
@@ -110,7 +132,7 @@ get_geobosque_link <- \(type = NULL){
 }
 
 #' Geobosque API to get deforestation hot-spots for the last week
-#' @param type A string. Only one layer; `warning_last_week`
+#' @param type A string. Only one layer; `alertas_pt_2026`
 #' @return A string containing the URL of the requested file.
 #' @keywords internal
 #' @noRd
@@ -118,7 +140,7 @@ get_early_warning_link <- \(type = NULL){
   tryCatch(
     .get_layer_url("geobosque", type),
     error = function(e) {
-      stop("Invalid type. Please choose 'warning_last_week'")
+      stop("Invalid type. Please choose 'alertas_pt_2026'")
     }
   )
 }
@@ -186,6 +208,33 @@ get_mapbiomas_link <- \(type = NULL){
     stop("Invalid type. Please choose from available MapBiomas layers: ", paste(names(urls), collapse = ", "))
   }
   urls[[type]]
+}
+
+#' Retrieve the links to CEPLAN geoserver layers.
+#' @param type A string. Select only one from the list of available layers, for more information please use `get_data_sources(provider = "Ceplan")`. Defaults to NULL.
+#' @return A string containing the URL of the requested file.
+#' @keywords internal
+#' @noRd
+get_ceplan_link <- \(type = NULL){
+  .get_layer_url("ceplan", type)
+}
+
+#' Retrieve the links to ANA-SNIRH WFS layers.
+#' @param type A string. Select only one from the list of available layers, for more information please use `get_data_sources(provider = "Ana")`. Defaults to NULL.
+#' @return A string containing the URL of the requested file.
+#' @keywords internal
+#' @noRd
+get_ana_link <- \(type = NULL){
+  .get_layer_url("ana", type)
+}
+
+#' Retrieve the links to OEFA-PIFA WFS layers.
+#' @param type A string. Select only one from the list of available layers, for more information please use `get_data_sources(provider = "Oefa")`. Defaults to NULL.
+#' @return A string containing the URL of the requested file.
+#' @keywords internal
+#' @noRd
+get_oefa_link <- \(type = NULL){
+  .get_layer_url("oefa", type)
 }
 
 #' Download a file with a cli progress bar
@@ -343,4 +392,4 @@ get_mapbiomas_peru_legend <- function() {
 #' @name global-variables
 #' @keywords internal
 #' @noRd
-utils::globalVariables(c("anio","range5","range4","range3","range2","range1","loss","year","id","nro_clean","nivel", ".internal_urls", "X", "Y", "coords", "all_coords", "everything", "lng", "lat","provider","available_providers","loreto_prov",".","FECREG","FECHA","created_date","last_edited_date","emision","extract_meteorological_table","data","nombdep","setNames","detected_at","nombprov","error_message"))
+utils::globalVariables(c("fe_alerta","anio","range5","range4","range3","range2","range1","loss","year","id","nro_clean","nivel", ".internal_urls", "X", "Y", "coords", "all_coords", "everything", "lng", "lat","provider","available_providers","loreto_prov",".","FECREG","FECHA","created_date","last_edited_date","emision","extract_meteorological_table","data","nombdep","setNames","detected_at","nombprov","error_message","fecha_utc","hora_utc","latitud","longitud","profundidad_km","magnitud","magnitud_mb","magnitud_ms","magnitud_mw","fecha_alerta","dia_jul","mes_alerta","ubigeo"))

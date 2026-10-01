@@ -2,17 +2,16 @@ Type: Package
 Package: geoidep
 Title: Download Geographic Data on Various Topics Provided and Managed
         by the Spatial Data Infrastructure of Peru
-Version: 0.4.0
-Authors@R: 
-    person("antony", "barja", , "geografo.pe@gmail.com", role = c("aut", "cre", "cph"),
-           comment = c(ORCID = "0000-0001-5921-2858"))
+Version: 0.5.0
+Authors@R: person("antony", "barja", , "geografo.pe@gmail.com", role =
+        c("aut", "cre", "cph"), comment = c(ORCID ="0000-0001-5921-2858"))
 Description: Provides R users with easy access to official cartographic
-    data from Peru across a range of topics, including society, transport,
-    environment, agriculture, climate, and more.  It also includes data
-    from regional government entities and technical-scientific
-    institutions, all managed by Peru's Spatial Data Infrastructure.  For
-    more information, please visit:
-    <https://www.geoidep.gob.pe/>.
+        data from Peru across a range of topics, including society,
+        transport, environment, agriculture, climate, and more.  It
+        also includes data from regional government entities and
+        technical-scientific institutions, all managed by Peru's
+        Spatial Data Infrastructure.  For more information, please
+        visit: <https://www.geoidep.gob.pe/>.
 License: Apache License (>= 2)
 URL: https://geografo.pe/geoidep/
 BugReports: https://github.com/ambarja/geoidep/issues
@@ -25,9 +24,9 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Config/roxygen2/version: 8.1.0
 NeedsCompilation: no
-Packaged: 2026-09-24 16:55:15 UTC; mvcs_dgppvu_ambi
+Packaged: 2026-10-01 14:03:41 UTC; mvcs_dgppvu_ambi
 Author: antony barja [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0001-5921-2858>)
 Maintainer: antony barja <geografo.pe@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-09-27 09:10:27 UTC
+Date/Publication: 2026-10-01 15:40:38 UTC

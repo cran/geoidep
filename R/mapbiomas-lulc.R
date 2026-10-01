@@ -1,3 +1,53 @@
+#' Build the MapBiomas Peru LULC download URL
+#'
+#' Internal: validated URL construction without any download, so the
+#' URL logic can be unit-tested offline.
+#'
+#' @keywords internal
+#' @noRd
+.mapbiomas_lulc_url <- \(year, collection = 4) {
+  valid_collections <- 1:4
+
+  if (!collection %in% valid_collections) {
+    cli::cli_abort(c(
+      "Invalid {.arg collection} for MapBiomas Peru.",
+      "x" = "You supplied: {.val {collection}}",
+      "i" = "Available collections: {.val {valid_collections}}"
+    ))
+  }
+
+  if (collection == 4) {
+    sprintf(
+      "https://storage.googleapis.com/mapbiomas-public/initiatives/peru/collection4/lulc/coverage/peru_coverage/peru_coverage-col4_%d.tif",
+      year
+    )
+  } else {
+    sprintf(
+      "https://storage.googleapis.com/mapbiomas-public/initiatives/peru/collection_%d/LULC/peru_collection%d_integration_v1-classification_%d.tif",
+      collection, collection, year
+    )
+  }
+}
+
+#' Crop a MapBiomas raster to an area of interest and name it
+#'
+#' Internal: pure `terra`/`sf` logic without downloads, unit-testable with a
+#' synthetic raster.
+#'
+#' @keywords internal
+#' @noRd
+.crop_mapbiomas_raster <- \(r, crop_to, layer_name) {
+  if (!is.null(crop_to)) {
+    if (inherits(crop_to, c("sf", "sfc"))) {
+      crop_to <- terra::vect(sf::st_transform(crop_to, terra::crs(r)))
+    }
+    r <- terra::crop(r, crop_to, mask = TRUE)
+  }
+
+  names(r) <- layer_name
+  r
+}
+
 #' Get MapBiomas Peru land use / land cover raster
 #'
 #' @description
@@ -8,7 +58,7 @@
 #'
 #' @param year Integer. Year of the classification (e.g. `2024`).
 #' @param crop_to Optional. An `sf`/`sfc` object, `SpatVector`, or `SpatExtent`. If `NULL`, the full raster for Peru is returned.
-#' @param collection Integer. MapBiomas Peru collection number (`1`, `2`, `3`, `4`). Default `3`.
+#' @param collection Integer. MapBiomas Peru collection number (`1`, `2`, `3`, `4`). Default `4`.
 #' @returns A `SpatRaster` with one layer named `classification_<year>`.
 #' @examples
 #' \dontrun{
@@ -21,27 +71,7 @@
 #' }
 #' @export
 get_mapbiomas_peru_lulc <- \(year, crop_to = NULL, collection = 4) {
-  valid_collections <- 1:4
-
-  if (!collection %in% valid_collections) {
-    cli::cli_abort(c(
-      "Invalid {.arg collection} for MapBiomas Peru.",
-      "x" = "You supplied: {.val {collection}}",
-      "i" = "Available collections: {.val {valid_collections}}"
-    ))
-  }
-
-  url <- if (collection == 4) {
-    sprintf(
-      "https://storage.googleapis.com/mapbiomas-public/initiatives/peru/collection4/lulc/coverage/peru_coverage/peru_coverage-col4_%d.tif",
-      year
-    )
-  } else {
-    sprintf(
-      "https://storage.googleapis.com/mapbiomas-public/initiatives/peru/collection_%d/LULC/peru_collection%d_integration_v1-classification_%d.tif",
-      collection, collection, year
-    )
-  }
+  url <- .mapbiomas_lulc_url(year, collection)
 
   resp <- tryCatch(
     httr2::request(url) |>
@@ -68,15 +98,7 @@ get_mapbiomas_peru_lulc <- \(year, crop_to = NULL, collection = 4) {
   r <- terra::rast(paste0("/vsicurl/", url)) |>
     terra::as.factor()
 
-  if (!is.null(crop_to)) {
-    if (inherits(crop_to, c("sf", "sfc"))) {
-      crop_to <- terra::vect(sf::st_transform(crop_to, terra::crs(r)))
-    }
-    r <- terra::crop(r, crop_to, mask = TRUE)
-  }
-
-  names(r) <- paste0("classification_", year)
-  r
+  .crop_mapbiomas_raster(r, crop_to, paste0("classification_", year))
 }
 
 #' Get a multi-year stack of MapBiomas Peru LULC rasters
@@ -88,7 +110,7 @@ get_mapbiomas_peru_lulc <- \(year, crop_to = NULL, collection = 4) {
 #'
 #' @param years Integer vector. Years to download (e.g. `2018:2024`).
 #' @param crop_to Optional. An `sf`/`sfc` object, `SpatVector`, or `SpatExtent`. If `NULL`, each raster is returned at full extent.
-#' @param collection Integer. MapBiomas Peru collection number (`1`, `2`, `3`, `4`). Default `3`.
+#' @param collection Integer. MapBiomas Peru collection number (`1`, `2`, `3`, `4`). Default `4`.
 #' @param show_progress Logical. Show a cli progress bar. Default `TRUE`.
 #' @returns A `SpatRaster` with one layer per year, named `classification_<year>`.
 #' @examples

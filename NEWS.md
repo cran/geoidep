@@ -1,3 +1,50 @@
+# geoidep 0.5.0
+
+* The data catalogue (`get_data()` / `get_data_sources()` / `get_providers()`)
+  now reads the CSV bundled with the package instead of the remote copy, so
+  catalogue queries always match the installed code and work offline
+  (CRAN-safe); use `options(geoidep = <url>)` for a custom catalogue. The
+  reader also accepts both `;`- and `,`-separated files.
+
+* The vignette degrades gracefully when the INEI/Geobosque services are
+  unreachable (live chunks are skipped with a note instead of failing).
+
+* Updated `get_early_warning()` of Geobosques with new API of interoperability only of year 2026.
+
+* Now you can downloads the **68 public WFS layers** of the OEFA (`sistemas.oefa.gob.pe/pifa/mfe`) with the new function `get_oefa_data()`.
+
+* ANA-SNIRH water layers via `get_ana_data()` — downloads any of the
+  **50 public WFS layers** from the ANA water resources IDE.
+  (`snirh.ana.gob.pe/ConsultaIDE`)
+  
+* Integration of CEPLAN into geoidep, you can now donwloads  the **83 public WFS layers** from `geo.ceplan.gob.pe` with the function `get_ceplan_data()`.
+  
+
+# geoidep 0.4.1
+* New: IGP seismic catalogs via `get_igp_seismic_data()` — downloads the
+  `instrumental` (1960-present) and `historic` (1471-1959) catalogs from the
+  IGP seismic data repository
+  (<https://ultimosismo.igp.gob.pe/repositorio/datos-sismicos>) with the same
+  filters as the web form (dates, magnitude, depth) and returns an `sf` POINT
+  layer (EPSG:4326) clipped to any user-supplied polygon (its
+  bounding box is used internally to narrow the download). The XLSX response
+  is parsed with base R only, so no additional package is required.
+  
+* Refreshed README badges and registered the new Zenodo DOI.
+  - [Shields](https://shields.io/)
+  - [{badgr}](https://github.com/matt-dray/badgr)
+
+* [cffr](https://docs.ropensci.org/cffr/) for a correct citation together with GitHub Actions.
+  
+
+* Updated of MapBiomas LULC function the documentation.
+  - `get_mapbiomas_peru_lulc()`
+  - `get_mapbiomas_peru_lulc_series()`
+
+* New [CRAN status](https://github.com/dieghernan/cran-status-check) with GitHub Actions.
+  This action checks the CRAN status of a R package and optionally creates an issue or make the action fail.
+  
+
 # geoidep 0.4.0
 * Full refactor: scripts reorganised by provider (`inei.R`, `geobosque.R`,
   `serfor.R`, `mtc.R`, `sernanp.R`, `inaigem.R`, `senamhi.R`,
